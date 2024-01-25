@@ -108,9 +108,7 @@ func (cronhpa *CronHorizontalPodAutoscaler) ApplyHPAPatch(patchName string, hpa 
 		}
 		if scheduledPatch.Patch.Metrics != nil {
 			hpa.Spec.Metrics = make([]autoscalingv2.MetricSpec, len(scheduledPatch.Patch.Metrics))
-			for i, metric := range scheduledPatch.Patch.Metrics {
-				hpa.Spec.Metrics[i] = metric
-			}
+			copy(hpa.Spec.Metrics, scheduledPatch.Patch.Metrics)
 		}
 	}
 	return nil
