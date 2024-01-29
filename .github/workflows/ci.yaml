@@ -21,9 +21,11 @@ jobs:
         go-version-file: go.mod
         check-latest: true
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v2
+      uses: golangci/golangci-lint-action@v3
       with:
-        version: v1.42.1
+        version: latest
+        skip-pkg-cache: true
+        skip-build-cache: true
   test:
     runs-on: ubuntu-latest
     steps:

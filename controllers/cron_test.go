@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -30,33 +31,25 @@ func TestCron(t *testing.T) {
 		cronhpa:    nil,
 		patchName:  "patch-1",
 	})
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	err = cron.Add(types.NamespacedName{Name: "foo", Namespace: "ns"}, "patch-2", "0 * * * *", &CronContext{
 		reconciler: nil,
 		cronhpa:    nil,
 		patchName:  "patch-2",
 	})
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	err = cron.Add(types.NamespacedName{Name: "foo", Namespace: "ns"}, "patch-3", "0 * * * *", &CronContext{
 		reconciler: nil,
 		cronhpa:    nil,
 		patchName:  "patch-3",
 	})
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	err = cron.Add(types.NamespacedName{Name: "bar", Namespace: "ns"}, "patch-4", "0 * * * *", &CronContext{
 		reconciler: nil,
 		cronhpa:    nil,
 		patchName:  "patch-4",
 	})
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	resourceEntry := cron.ListResourceEntry(types.NamespacedName{Name: "foo", Namespace: "ns"})
 	assert.Equal(t, ResourceEntry{
 		"patch-1": 1,
@@ -73,9 +66,7 @@ func TestCron(t *testing.T) {
 	cron.Remove(types.NamespacedName{Name: "foo", Namespace: "ns"}, "paptch-1")
 
 	cron.RemoveResourceEntry(types.NamespacedName{Name: "foo", Namespace: "ns"})
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	resourceEntry = cron.ListResourceEntry(types.NamespacedName{Name: "foo", Namespace: "ns"})
 	assert.Equal(t, ResourceEntry{}, resourceEntry)
 }

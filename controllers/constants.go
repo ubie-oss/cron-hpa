@@ -1,8 +1,8 @@
 package controllers
 
-type CTX_VALUE_KEY string
+type CtxValueKey string
 
 var (
-	CTX_VALUE_NAME      CTX_VALUE_KEY = "name"
-	CTX_VALUE_NAMESPACE CTX_VALUE_KEY = "namespace"
+	CtxValueName      CtxValueKey = "name"
+	CtxValueNamespace CtxValueKey = "namespace"
 )

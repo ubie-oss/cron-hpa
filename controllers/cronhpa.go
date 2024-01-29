@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
-	cronhpav1alpha1 "github.com/ubie-oss/cron-hpa/api/v1alpha1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -33,6 +32,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	cronhpav1alpha1 "github.com/ubie-oss/cron-hpa/api/v1alpha1"
 )
 
 type CronHorizontalPodAutoscaler cronhpav1alpha1.CronHorizontalPodAutoscaler
@@ -50,7 +51,7 @@ const (
 	CronHPAEventNone        CronHPAEvent = ""
 )
 
-const MAX_SCHEDULE_TRY = 1000000
+const MaxScheduleTry = 1000000
 
 func (cronhpa *CronHorizontalPodAutoscaler) UpdateSchedules(ctx context.Context, reconciler *CronHorizontalPodAutoscalerReconciler) error {
 	logger := log.FromContext(ctx)
@@ -89,6 +90,7 @@ func (cronhpa *CronHorizontalPodAutoscaler) ClearSchedules(ctx context.Context, 
 func (cronhpa *CronHorizontalPodAutoscaler) ApplyHPAPatch(patchName string, hpa *autoscalingv2.HorizontalPodAutoscaler) error {
 	var scheduledPatch *cronhpav1alpha1.CronHorizontalPodAutoscalerScheduledPatch
 	for _, sp := range cronhpa.Spec.ScheduledPatches {
+		sp := sp
 		if sp.Name == patchName {
 			scheduledPatch = &sp
 			break
@@ -171,13 +173,13 @@ func (cronhpa *CronHorizontalPodAutoscaler) GetCurrentPatchName(ctx context.Cont
 			}
 			nextTime := lastCronTimestamp.Time
 			latestTime := lastCronTimestamp.Time
-			for i := 0; i <= MAX_SCHEDULE_TRY; i++ {
+			for i := 0; i <= MaxScheduleTry; i++ {
 				nextTime = schedule.Next(nextTime)
 				if nextTime.After(currentTime) || nextTime.IsZero() {
 					break
 				}
 				latestTime = nextTime
-				if i == MAX_SCHEDULE_TRY {
+				if i == MaxScheduleTry {
 					return "", fmt.Errorf("Cannot find the next schedule of patch %s", scheduledPatch.Name)
 				}
 			}
@@ -221,15 +223,16 @@ func (cronhpa *CronHorizontalPodAutoscaler) CreateOrPatchHPA(ctx context.Context
 		event = CronHPAEventCreated
 		msg = "Created HPA"
 	} else {
-		if hpa.Annotations[annotationNameSkip] == "true" {
+		switch {
+		case hpa.Annotations[annotationNameSkip] == "true":
 			logger.Info("Skip updating an HPA by an annotation")
 			event = CronHPAEventSkipped
 			msg = "Skipped updating HPA by an annotation"
-		} else if reflect.DeepEqual(hpa.Spec, newhpa.Spec) {
+		case reflect.DeepEqual(hpa.Spec, newhpa.Spec):
 			logger.Info("Skip updating an HPA with no changes")
 			event = CronHPAEventSkipped
 			msg = "Skipped updating HPA with no changes"
-		} else {
+		default:
 			patch := client.MergeFrom(hpa)
 			if err := reconciler.Patch(ctx, newhpa, patch); err != nil {
 				return err
