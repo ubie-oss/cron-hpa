@@ -32,8 +32,8 @@ type CronContext struct {
 
 func (cronctx *CronContext) Run() {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, CTX_VALUE_NAME, cronctx.cronhpa.Name)
-	ctx = context.WithValue(ctx, CTX_VALUE_NAMESPACE, cronctx.cronhpa.Namespace)
+	ctx = context.WithValue(ctx, CtxValueName, cronctx.cronhpa.Name)
+	ctx = context.WithValue(ctx, CtxValueNamespace, cronctx.cronhpa.Namespace)
 	logger := log.FromContext(ctx)
 
 	if err := cronctx.run(ctx); err != nil {

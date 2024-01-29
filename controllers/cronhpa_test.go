@@ -23,13 +23,15 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	cronhpav1alpha1 "github.com/ubie-oss/cron-hpa/api/v1alpha1"
-	"github.com/ubie-oss/cron-hpa/test"
+	"github.com/stretchr/testify/require"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
+
+	cronhpav1alpha1 "github.com/ubie-oss/cron-hpa/api/v1alpha1"
+	"github.com/ubie-oss/cron-hpa/test"
 )
 
 func TestNewHPA(t *testing.T) {
@@ -73,9 +75,7 @@ spec:
 
 	cronhpa := &CronHorizontalPodAutoscaler{}
 	err := yaml.Unmarshal([]byte(cronHPAManifest), cronhpa.ToCompatible())
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 
 	defaultHPAManifest := `
 apiVersion: autoscaling/v2
@@ -101,14 +101,9 @@ spec:
 
 	defaultHPA := &autoscalingv2.HorizontalPodAutoscaler{}
 	err = yaml.Unmarshal([]byte(defaultHPAManifest), defaultHPA)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
-
+	require.NoError(t, err)
 	hpa, err := cronhpa.NewHPA("")
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	fmt.Printf("kind %s %s\n", defaultHPA.Kind, hpa.Kind)
 	fmt.Printf("kind %s %s\n", defaultHPA.TypeMeta.Kind, hpa.TypeMeta.Kind)
 	if !assert.Equal(t, defaultHPA, hpa) {
@@ -139,14 +134,10 @@ spec:
 
 	withPatchHPA := &autoscalingv2.HorizontalPodAutoscaler{}
 	err = yaml.Unmarshal([]byte(withPatchHPAManifest), withPatchHPA)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 
 	hpa, err = cronhpa.NewHPA("one")
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, withPatchHPA, hpa) {
 		t.FailNow()
 	}
@@ -188,9 +179,7 @@ spec:
 
 	cronhpa := &CronHorizontalPodAutoscaler{}
 	err := yaml.Unmarshal([]byte(cronHPAManifest), cronhpa.ToCompatible())
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 
 	currentTime := time.Time{}
 	_ = currentTime.UnmarshalText([]byte("2021-09-04T00:00:00+09:00"))
@@ -201,9 +190,7 @@ spec:
 	// In-range weekday.
 	_ = currentTime.UnmarshalText([]byte("2021-10-04T00:00:00+09:00")) // Mon
 	patchName, err := cronhpa.GetCurrentPatchName(ctx, currentTime)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, "weekday", patchName) {
 		t.FailNow()
 	}
@@ -211,9 +198,7 @@ spec:
 	// In-range weekend.
 	_ = currentTime.UnmarshalText([]byte("2021-10-02T00:00:00+09:00")) // Sat
 	patchName, err = cronhpa.GetCurrentPatchName(ctx, currentTime)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, "weekend", patchName) {
 		t.FailNow()
 	}
@@ -221,9 +206,7 @@ spec:
 	// Out-range date
 	_ = currentTime.UnmarshalText([]byte("2021-09-15T00:00:00+09:00")) // Wed
 	patchName, err = cronhpa.GetCurrentPatchName(ctx, currentTime)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, "", patchName) {
 		t.FailNow()
 	}
@@ -232,9 +215,7 @@ spec:
 	_ = currentTime.UnmarshalText([]byte("2021-09-15T00:00:00+09:00")) // Wed
 	cronhpa.Status.LastScheduledPatchName = "weekday"
 	patchName, err = cronhpa.GetCurrentPatchName(ctx, currentTime)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, "weekday", patchName) {
 		t.FailNow()
 	}
@@ -244,9 +225,7 @@ spec:
 	cronhpa.Spec.ScheduledPatches = []cronhpav1alpha1.CronHorizontalPodAutoscalerScheduledPatch{}
 	_ = currentTime.UnmarshalText([]byte("2021-10-02T00:00:00+09:00")) // Sat
 	patchName, err = cronhpa.GetCurrentPatchName(ctx, currentTime)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, "", patchName) {
 		t.FailNow()
 	}
@@ -256,9 +235,7 @@ spec:
 	cronhpa.Status.LastCronTimestamp = nil
 	_ = currentTime.UnmarshalText([]byte("2021-10-02T00:00:00+09:00")) // Sat
 	patchName, err = cronhpa.GetCurrentPatchName(ctx, currentTime)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, "", patchName) {
 		t.FailNow()
 	}
@@ -302,17 +279,13 @@ spec:
 
 	cronhpa := &CronHorizontalPodAutoscaler{}
 	err := yaml.Unmarshal([]byte(cronHPAManifest), cronhpa.ToCompatible())
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 
 	currentTime := time.Time{}
 	_ = currentTime.UnmarshalText([]byte("2021-09-04T00:00:00+09:00"))
 
 	fakeClient, err := test.NewFakeClient(ctx)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	reconciler := &CronHorizontalPodAutoscalerReconciler{
 		Client:   fakeClient,
 		Recorder: &test.FakeRecorder{},
@@ -320,26 +293,20 @@ spec:
 
 	// Create a CronHPA.
 	err = reconciler.Client.Create(ctx, cronhpa.ToCompatible())
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 
 	// Ensure no HPA.
 	hpa := &autoscalingv2.HorizontalPodAutoscaler{}
 	err = reconciler.Client.Get(ctx, types.NamespacedName{Namespace: "default", Name: "cron-hpa-sample"}, hpa)
-	if !assert.Equal(t, errors.IsNotFound(err), true) {
+	if !assert.True(t, errors.IsNotFound(err)) {
 		t.FailNow()
 	}
 
 	// Create an HPA.
 	err = cronhpa.CreateOrPatchHPA(ctx, "weekday", currentTime, reconciler)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	err = reconciler.Client.Get(ctx, types.NamespacedName{Namespace: "default", Name: "cron-hpa-sample"}, hpa)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, int32(1), *hpa.Spec.MinReplicas) {
 		t.FailNow()
 	}
@@ -348,22 +315,16 @@ spec:
 	newMinReplicas := int32(2)
 	cronhpa.Spec.ScheduledPatches[0].Patch.MinReplicas = &newMinReplicas
 	err = cronhpa.CreateOrPatchHPA(ctx, "weekday", currentTime, reconciler)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	err = reconciler.Client.Get(ctx, types.NamespacedName{Namespace: "default", Name: "cron-hpa-sample"}, hpa)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, int32(2), *hpa.Spec.MinReplicas) {
 		t.FailNow()
 	}
 
 	// Skip updating an HPA.
 	err = reconciler.Client.Get(ctx, types.NamespacedName{Namespace: "default", Name: "cron-hpa-sample"}, hpa)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, int32(2), *hpa.Spec.MinReplicas) {
 		t.FailNow()
 	}
@@ -371,19 +332,13 @@ spec:
 		"cron-hpa.ubie-oss.github.com/skip": "true",
 	}
 	err = reconciler.Client.Update(ctx, hpa)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	newMinReplicas = int32(3)
 	cronhpa.Spec.ScheduledPatches[0].Patch.MinReplicas = &newMinReplicas
 	err = cronhpa.CreateOrPatchHPA(ctx, "weekday", currentTime, reconciler)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	err = reconciler.Client.Get(ctx, types.NamespacedName{Namespace: "default", Name: "cron-hpa-sample"}, hpa)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
+	require.NoError(t, err)
 	if !assert.Equal(t, int32(2), *hpa.Spec.MinReplicas) {
 		t.FailNow()
 	}
