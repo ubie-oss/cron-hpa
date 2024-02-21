@@ -1,6 +1,6 @@
 # CronHPA
 
-CronHPA was created by [dtaniwaki](https://github.com/dtaniwaki/cron-hpa). We forked because the original version no longer being actively maintained.
+CronHPA was created by [dtaniwaki](https://github.com/dtaniwaki/cron-hpa). We forked because the original version is no longer being actively maintained.
 
 [![Go Reference][godoc-image]][godoc-link]
 [![Coverage Status][cov-image]][cov-link]
