@@ -1,11 +1,11 @@
 # CronHPA
 
-This library is forked from [dtaniwaki/cron-hpa](https://github.com/dtaniwaki/cron-hpa), because we want to relace CronHorizontalPodAutoscaler to ideal state.
+CronHPA was created by [dtaniwaki](https://github.com/dtaniwaki/cron-hpa). We forked because the original version is no longer being actively maintained.
 
 [![Go Reference][godoc-image]][godoc-link]
 [![Coverage Status][cov-image]][cov-link]
 
-CronHPA is an operator to update HPA resources based on schedules. For example, you can decrease min replicas in the night-time and increase it in the day-time.
+CronHPA is an operator designed to modify Horizontal Pod Autoscaler (HPA) resources according to specific schedules. This functionality allows for dynamic adjustments, such as reducing the minimum number of replicas during night-time hours and increasing them during day-time hours.
 
 Here's a `CronHPA` example.
 
@@ -116,7 +116,7 @@ You will see sample HPA and deployment in the current context, maybe `default` d
 
 ## Copyright
 
-Copyright (c) 2021 Daisuke Taniwaki. See [LICENSE](LICENSE) for details.
+Copyright (c) 2024 Ubie, Inc. See [LICENSE](LICENSE) for details.
 
 
 [godoc-image]: https://pkg.go.dev/badge/github.com/ubie-oss/cron-hpa.svg
