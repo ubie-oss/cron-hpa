@@ -1,0 +1,23 @@
+name: Publish Docker image
+on:
+  push:
+    tags:
+    - 'v*'
+jobs:
+  release-manifest:
+    name: Release manifest
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v4
+    - name: Set up kustomize
+      uses: imranismail/setup-kustomize@v2
+    - name: kustomize build
+      run: kustomize build config/crd > cron-hpa.yaml
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          cron-hpa.yaml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
