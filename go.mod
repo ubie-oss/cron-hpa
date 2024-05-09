@@ -1,14 +1,14 @@
 module github.com/ubie-oss/cron-hpa
 
-go 1.21
+go 1.22
 
-toolchain go1.21.4
+toolchain go1.22.3
 
 require (
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.30.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
 	k8s.io/client-go v0.29.1
