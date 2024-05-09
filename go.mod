@@ -1,6 +1,6 @@
 module github.com/ubie-oss/cron-hpa
 
-go 1.22.0
+go 1.22.3
 
 require (
 	github.com/onsi/ginkgo v1.16.5
