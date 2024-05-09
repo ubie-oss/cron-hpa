@@ -2,8 +2,6 @@ module github.com/ubie-oss/cron-hpa
 
 go 1.22.0
 
-toolchain go1.22.3
-
 require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.33.1
