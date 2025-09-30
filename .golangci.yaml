@@ -1,3 +1,5 @@
+version: "2"
+
 run:
   timeout: 30m
 
@@ -12,35 +14,38 @@ linters-settings:
     rules:
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#var-naming
       - name: var-naming
-  gci:
-    sections:
-      # Standard section: captures all standard packages.
-      - standard
-      # Default section: contains all imports that could not be matched to another section type.
-      - default
-      # Custom section: groups all imports with the specified Prefix.
-      - prefix(github.com/ubie-oss)
-    skip-generated: true
-    custom-order: true
+
 linters:
   disable-all: true
   enable:
     - testifylint
     - tparallel
     - bodyclose
-    - gofumpt
     - containedctx
-    - tenv
     - govet
     - ineffassign
     - staticcheck
     - unused
-    - exportloopref
-    - gci
     - ginkgolinter
     - gocritic
     - makezero
     - misspell
     - prealloc
     - revive
+
+formatters:
+  enable:
+    - gofumpt
+    - gci
+  settings:
+    gci:
+      sections:
+        # Standard section: captures all standard packages.
+        - standard
+        # Default section: contains all imports that could not be matched to another section type.
+        - default
+        # Custom section: groups all imports with the specified Prefix.
+        - prefix(github.com/ubie-oss)
+      skip-generated: true
+      custom-order: true
 
