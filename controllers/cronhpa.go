@@ -97,7 +97,7 @@ func (cronhpa *CronHorizontalPodAutoscaler) ApplyHPAPatch(patchName string, hpa 
 		}
 	}
 	if scheduledPatch == nil {
-		return fmt.Errorf("No schedule patch named %s", patchName)
+		return fmt.Errorf("no schedule patch named %s", patchName)
 	}
 
 	// Apply patches on the template.
@@ -130,8 +130,8 @@ func (cronhpa *CronHorizontalPodAutoscaler) NewHPA(patchName string) (*autoscali
 		Spec: template.Spec,
 	}
 	if template.Metadata != nil {
-		hpa.ObjectMeta.Labels = template.Metadata.Labels
-		hpa.ObjectMeta.Annotations = template.Metadata.Annotations
+		hpa.Labels = template.Metadata.Labels
+		hpa.Annotations = template.Metadata.Annotations
 	}
 	if patchName != "" {
 		if err := cronhpa.ApplyHPAPatch(patchName, hpa); err != nil {
@@ -180,7 +180,7 @@ func (cronhpa *CronHorizontalPodAutoscaler) GetCurrentPatchName(ctx context.Cont
 				}
 				latestTime = nextTime
 				if i == MaxScheduleTry {
-					return "", fmt.Errorf("Cannot find the next schedule of patch %s", scheduledPatch.Name)
+					return "", fmt.Errorf("cannot find the next schedule of patch %s", scheduledPatch.Name)
 				}
 			}
 			if latestTime.After(mostLatestTime) && (latestTime.Before(currentTime) || latestTime.Equal(currentTime)) {
@@ -205,7 +205,7 @@ func (cronhpa *CronHorizontalPodAutoscaler) CreateOrPatchHPA(ctx context.Context
 	if err != nil {
 		return err
 	}
-	if err := controllerutil.SetControllerReference(cronhpa.ToCompatible(), newhpa, reconciler.Client.Scheme()); err != nil {
+	if err := controllerutil.SetControllerReference(cronhpa.ToCompatible(), newhpa, reconciler.Scheme()); err != nil {
 		return err
 	}
 
