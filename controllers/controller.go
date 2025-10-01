@@ -64,7 +64,7 @@ func (r *CronHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Context, r
 	}
 
 	// Handle deleted resources.
-	if !cronhpa.ObjectMeta.DeletionTimestamp.IsZero() {
+	if !cronhpa.DeletionTimestamp.IsZero() {
 		if controllerutil.ContainsFinalizer(cronhpa.ToCompatible(), finalizerName) {
 			logger.Info("Clear schedules")
 			if err := cronhpa.ClearSchedules(ctx, r); err != nil {
@@ -82,7 +82,7 @@ func (r *CronHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Context, r
 	// Set finalizer.
 	if !controllerutil.ContainsFinalizer(cronhpa.ToCompatible(), finalizerName) {
 		logger.Info("Set finalizer")
-		cronhpa.ObjectMeta.Finalizers = append(cronhpa.ObjectMeta.Finalizers, finalizerName)
+		cronhpa.Finalizers = append(cronhpa.Finalizers, finalizerName)
 		if err := r.Update(ctx, cronhpa.ToCompatible()); err != nil {
 			return reconcile.Result{}, err
 		}
